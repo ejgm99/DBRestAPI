@@ -1,0 +1,15 @@
+{
+  "name": "node-postgres",
+  "version": "1.0.0",
+  "description": "A rest API that allows me to save all my data on one central server and load tasks through it.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.6.0"
+  }
+}
