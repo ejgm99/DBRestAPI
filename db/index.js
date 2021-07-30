@@ -9,6 +9,40 @@ const pool = new Pool({
   port: 5432,
 });
 
+const query = (text, params, callback) => {
+  const start = Date.now();
+  return pool.query(text, params, (err,res) => {
+    let duration = Date.now()-start;
+    console.log('executed query', { text, duration, rows: res.rowCount })
+    callback(err,res);
+  })
+}
+
+const getChildTasks = (body) => {
+  return new Promise( function(resolve, reject) {
+      console.log("Is this how you extract a single parameter from",typeof(body))
+      query("SELECT title from tasks WHERE parent_id = (SELECT id from tasks where title='BaseCamp')",(error, results) =>{
+        if (error){
+          reject(error)
+        }
+        resolve(results.rows);
+      })
+  })
+}
+
+const getRootTasks = () =>{
+  return new Promise( function(resolve, reject) {
+    query('SELECT * FROM TASKS WHERE parent_id = 1',[], (error, results) =>{
+      if (error){
+        reject(error)
+      }
+      resolve(results.rows);
+    })
+  })
+}
+
+
+
 const getMerchants = () => {
   return new Promise(function(resolve, reject) {
     pool.query('SELECT * FROM merchants ORDER BY id ASC', (error, results) => {
@@ -20,16 +54,7 @@ const getMerchants = () => {
   })
 }
 
-const getRootTasks = () =>{
-  return new Promise( function(resolve, reject) {
-    pool.query('SELECT * FROM TASKS', (error, results) =>{
-      if (error){
-        reject(error)
-      }
-      resolve(results.rows);
-    })
-  })
-}
+
 
 const createMerchant = (body) => {
   return new Promise(function(resolve, reject) {
@@ -167,10 +192,12 @@ function queryNumberOfChildTasks(parent_id, only_completed){
 
 
 module.exports = {
+  query,
   pool,
   deleteTask,
   addProject,
   addSubtask,
+  getChildTasks,
   getNumberOfSubtasks,
   queryNumberOfChildTasks,
   displayTasks,
